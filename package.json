@@ -1,0 +1,36 @@
+{
+  "name": "dev-reminder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A simple personal task reminder app for planning today and scheduling future tasks.",
+  "author": "Aman",
+  "license": "MIT",
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest --watchAll=false",
+    "lint": "eslint . --ext .js"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.23.1",
+    "@react-native-community/datetimepicker": "^8.2.0",
+    "@react-navigation/native": "^6.0.0",
+    "@react-navigation/native-stack": "^6.0.0",
+    "react": "18.3.1",
+    "react-native": "0.74.5",
+    "react-native-safe-area-context": "^4.10.1",
+    "react-native-screens": "^3.31.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.0",
+    "@babel/runtime": "^7.22.0",
+    "@react-native/babel-preset": "0.74.5",
+    "@react-native/eslint-config": "0.74.5",
+    "@react-native/metro-config": "0.74.5",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "metro-react-native-babel-preset": "0.74.5",
+    "react-test-renderer": "18.3.1"
+  }
+}
