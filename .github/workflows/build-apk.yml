@@ -36,6 +36,9 @@ jobs:
       # Install dependencies
       # -----------------------------
       - name: Install dependencies
+        working-directory: .
+        env:
+          CI: false
         run: npm install --legacy-peer-deps
         timeout-minutes: 10
 
@@ -62,6 +65,8 @@ jobs:
       # -----------------------------
       - name: Build Debug APK
         working-directory: android
+        env:
+          CI: false
         run: ./gradlew assembleDebug
 
 
