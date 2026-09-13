@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+
   workflow_dispatch:
 
 jobs:
@@ -13,35 +14,60 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # -----------------------------
+      # Checkout
+      # -----------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
+      # -----------------------------
+      # Node.js
+      # -----------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
+
+      # -----------------------------
+      # Install dependencies
+      # -----------------------------
       - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ] || [ -f npm-shrinkwrap.json ] || [ -f yarn.lock ]; then
-            npm ci
-          else
-            npm install
-          fi
+        run: npm ci --legacy-peer-deps
+        timeout-minutes: 10
 
+
+      # -----------------------------
+      # Java
+      # -----------------------------
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
+
+      # -----------------------------
+      # Gradle
+      # -----------------------------
       - name: Make Gradle executable
         run: chmod +x android/gradlew
 
+
+      # -----------------------------
+      # Build APK
+      # -----------------------------
       - name: Build Debug APK
         working-directory: android
         run: ./gradlew assembleDebug
 
+
+      # -----------------------------
+      # Upload APK
+      # -----------------------------
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
