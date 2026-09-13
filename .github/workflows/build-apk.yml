@@ -56,6 +56,19 @@ jobs:
       # -----------------------------
       # Gradle
       # -----------------------------
+      - name: Validate Android project
+        run: |
+          echo "Listing repo root..."
+          ls -la
+          echo "Listing android directory..."
+          ls -la android
+          if [ ! -f android/gradlew ]; then
+            echo "Error: android/gradlew is missing."
+            echo "This project is not fully generated for Android builds yet."
+            echo "Run the React Native Android project setup before building."
+            exit 1
+          fi
+
       - name: Make Gradle executable
         run: chmod +x android/gradlew
 
