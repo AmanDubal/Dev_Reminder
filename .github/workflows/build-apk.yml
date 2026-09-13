@@ -77,7 +77,6 @@ jobs:
       # Build APK
       # -----------------------------
       - name: Build Debug APK
-        working-directory: android
         env:
           CI: false
         run: ./gradlew assembleDebug
