@@ -16,6 +16,12 @@ A simple, fully **offline** task-alarm app built with Flutter.
 - Configurable default snooze duration
 - Mark tasks complete
 
+## Download
+
+[Click here to download the latest APK](https://github.com/AmanDubal/Dev_Reminder/releases/latest/download/dev_reminder.apk)
+
+The APK is downloaded directly as `dev_reminder.apk`. If no release exists yet, create a version tag such as `v1.0.0` to publish the first download.
+
 ## Tech
 - Flutter (Dart)
 - sqflite (local DB)
