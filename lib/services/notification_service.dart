@@ -48,14 +48,14 @@ class NotificationService {
       onDidReceiveBackgroundNotificationResponse: _onBackgroundNotificationResponse,
     );
 
-    const channel = AndroidNotificationChannel(
+    final channel = AndroidNotificationChannel(
       _channelId,
       'Dev Reminder Alerts',
       description: 'Task reminder alarms',
       importance: Importance.max,
       playSound: _soundEnabled,
         sound: _soundEnabled
-          ? const RawResourceAndroidNotificationSound('alarm')
+          ? RawResourceAndroidNotificationSound('alarm')
           : null,
     );
 
@@ -86,14 +86,14 @@ class NotificationService {
       importance: Importance.max,
       priority: Priority.high,
       playSound: _soundEnabled,
-        sound: _soundEnabled
+      sound: _soundEnabled
           ? const RawResourceAndroidNotificationSound('alarm')
           : null,
       fullScreenIntent: true,
       category: AndroidNotificationCategory.alarm,
       actions: [
-        AndroidNotificationAction(snoozeActionId, 'Snooze'),
-        AndroidNotificationAction(turnOffActionId, 'Turn Off'),
+        const AndroidNotificationAction(snoozeActionId, 'Snooze'),
+        const AndroidNotificationAction(turnOffActionId, 'Turn Off'),
       ],
     );
     const iosDetails = DarwinNotificationDetails(
@@ -101,7 +101,7 @@ class NotificationService {
       presentSound: true,
       presentBadge: true,
     );
-    return const NotificationDetails(android: androidDetails, iOS: iosDetails);
+    return NotificationDetails(android: androidDetails, iOS: iosDetails);
   }
 
   DateTime _buildDateTime(String date, String time) {
