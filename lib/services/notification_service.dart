@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -16,6 +17,8 @@ class NotificationService {
   static const String snoozeActionId = 'SNOOZE_ACTION';
   static const String turnOffActionId = 'TURN_OFF_ACTION';
   static const String _channelId = 'dev_reminder_channel';
+
+  final ValueNotifier<String?> pendingTaskId = ValueNotifier(null);
 
   Future<void> init() async {
     tzdata.initializeTimeZones();
@@ -53,6 +56,12 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
+
+    final launchDetails = await _plugin.getNotificationAppLaunchDetails();
+    final response = launchDetails?.notificationResponse;
+    if (launchDetails?.didNotificationLaunchApp == true && response != null) {
+      pendingTaskId.value = response.payload;
+    }
   }
 
   Future<void> requestPermissions() async {
@@ -129,6 +138,10 @@ class NotificationService {
   }
 
   static void _onNotificationResponse(NotificationResponse response) {
+    if (response.actionId == null && response.payload != null) {
+      instance.pendingTaskId.value = response.payload;
+      return;
+    }
     _handleAction(response);
   }
 
