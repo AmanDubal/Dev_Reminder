@@ -67,7 +67,7 @@ jobs:
         working-directory: android
         env:
           CI: false
-        run: ./gradlew assembleDebug
+        run: ./gradlew clean assembleDebug --stacktrace
 
 
       # -----------------------------
