@@ -8,3 +8,13 @@ buildscript {
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24'
     }
 }
+
+allprojects {
+    repositories {
+        maven {
+            url "$rootDir/../node_modules/react-native/android"
+        }
+        google()
+        mavenCentral()
+    }
+}
