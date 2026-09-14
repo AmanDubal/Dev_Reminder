@@ -27,6 +27,8 @@ class _AlarmScreenState extends State<AlarmScreen> {
     );
     await DatabaseHelper.instance.updateTask(updated);
     await NotificationService.instance
+        .cancelNotification(widget.task.notificationId);
+    await NotificationService.instance
         .snoozeNotification(updated, updated.snoozeDuration);
     if (mounted) Navigator.pop(context);
   }
@@ -71,21 +73,22 @@ class _AlarmScreenState extends State<AlarmScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 18),
+              Text(
+                AppDateUtils.formatTime12h(widget.task.time),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.displaySmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+              const SizedBox(height: 10),
               Text(
                 widget.task.title,
                 textAlign: TextAlign.center,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                AppDateUtils.formatTime12h(widget.task.time),
-                style: theme.textTheme.displaySmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w300,
                 ),
               ),
               const Spacer(),

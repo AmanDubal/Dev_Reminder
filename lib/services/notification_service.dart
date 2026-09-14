@@ -137,8 +137,8 @@ class NotificationService {
     final newTime = DateTime.now().add(Duration(minutes: minutes));
     await _plugin.zonedSchedule(
       task.notificationId,
-      'DEV REMINDER (Snoozed)',
-      task.title,
+      'Alarm snoozed',
+      'Your alarm for "${task.title}" has been snoozed.',
       tz.TZDateTime.from(newTime, tz.local),
       _buildDetails(),
       uiLocalNotificationDateInterpretation:
@@ -175,6 +175,8 @@ class NotificationService {
         updatedAt: DateTime.now().toIso8601String(),
       );
       await db.updateTask(updated);
+      await NotificationService.instance
+          .cancelNotification(task.notificationId);
       await NotificationService.instance
           .snoozeNotification(updated, updated.snoozeDuration);
     } else if (response.actionId == turnOffActionId) {
