@@ -81,7 +81,7 @@ class NotificationService {
       presentSound: true,
       presentBadge: true,
     );
-    return NotificationDetails(android: androidDetails, iOS: iosDetails);
+    return const NotificationDetails(android: androidDetails, iOS: iosDetails);
   }
 
   DateTime _buildDateTime(String date, String time) {

@@ -5,18 +5,18 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return const Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            const Icon(Icons.event_available, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text('No tasks scheduled for today.',
+          children: [
+            Icon(Icons.event_available, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('No tasks scheduled for today.',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-            const SizedBox(height: 8),
-            const Text('Plan your day and stay productive.',
+            SizedBox(height: 8),
+            Text('Plan your day and stay productive.',
                 style: TextStyle(color: Colors.grey)),
           ],
         ),
