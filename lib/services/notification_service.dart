@@ -63,7 +63,7 @@ class NotificationService {
   }
 
   NotificationDetails _buildDetails() {
-    final androidDetails = AndroidNotificationDetails(
+    const androidDetails = AndroidNotificationDetails(
       _channelId,
       'Dev Reminder Alerts',
       channelDescription: 'Task reminder alarms',
@@ -102,6 +102,8 @@ class NotificationService {
       task.title,
       tz.TZDateTime.from(scheduledDate, tz.local),
       _buildDetails(),
+        uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       payload: task.id,
     );
@@ -119,6 +121,8 @@ class NotificationService {
       task.title,
       tz.TZDateTime.from(newTime, tz.local),
       _buildDetails(),
+        uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       payload: task.id,
     );
