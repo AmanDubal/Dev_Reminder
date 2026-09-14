@@ -49,7 +49,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: zulu
           java-version: 17
 
 
@@ -63,16 +63,11 @@ jobs:
       # -----------------------------
       # Build APK
       # -----------------------------
-      - name: Debug and Build Android
-        run: |
-          echo "=== Printing current working directory ==="
-          pwd
-          echo "=== Listing files in root repository ==="
-          ls -la
-          echo "=== Listing files inside android folder ==="
-          ls -la android || echo "No android folder found"
-          echo "=== Attempting Build ==="
-          cd android && ./gradlew assembleDebug
+      - name: Build Android Debug APK
+        working-directory: android
+        env:
+          CI: false
+        run: ./gradlew assembleDebug
 
 
       # -----------------------------
