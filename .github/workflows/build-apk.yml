@@ -53,7 +53,7 @@ jobs:
           java-version: 17
 
       - name: Generate Android project files
-        run: flutter create . --platforms=android --no-pub
+        run: flutter create . --project-name dev_reminder --platforms=android --no-pub
 
       - name: Install dependencies
         run: flutter pub get
