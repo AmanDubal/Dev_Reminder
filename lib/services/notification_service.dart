@@ -17,7 +17,7 @@ class NotificationService {
 
   static const String snoozeActionId = 'SNOOZE_ACTION';
   static const String turnOffActionId = 'TURN_OFF_ACTION';
-  static const String _channelId = 'dev_reminder_channel';
+  static const String _channelId = 'dev_reminder_alarm_channel_v2';
 
   final ValueNotifier<String?> pendingTaskId = ValueNotifier(null);
   bool _soundEnabled = true;
@@ -54,6 +54,9 @@ class NotificationService {
       description: 'Task reminder alarms',
       importance: Importance.max,
       playSound: _soundEnabled,
+        sound: _soundEnabled
+          ? const RawResourceAndroidNotificationSound('alarm')
+          : null,
     );
 
     await _plugin
@@ -76,13 +79,16 @@ class NotificationService {
   }
 
   NotificationDetails _buildDetails() {
-    const androidDetails = AndroidNotificationDetails(
+    final androidDetails = AndroidNotificationDetails(
       _channelId,
       'Dev Reminder Alerts',
       channelDescription: 'Task reminder alarms',
       importance: Importance.max,
       priority: Priority.high,
       playSound: _soundEnabled,
+        sound: _soundEnabled
+          ? const RawResourceAndroidNotificationSound('alarm')
+          : null,
       fullScreenIntent: true,
       category: AndroidNotificationCategory.alarm,
       actions: [

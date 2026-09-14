@@ -55,6 +55,9 @@ jobs:
       - name: Generate Android project files
         run: flutter create . --project-name dev_reminder --platforms=android --no-pub
 
+      - name: Add custom alarm sound
+        run: mkdir -p android/app/src/main/res/raw && cp assets/alarm.mp3 android/app/src/main/res/raw/alarm.mp3
+
       - name: Update Kotlin Gradle plugin
         run: sed -i '/org.jetbrains.kotlin.android/s/version "[^"]*"/version "1.9.22"/' android/settings.gradle
 
