@@ -71,7 +71,7 @@ class NotificationService {
       priority: Priority.high,
       fullScreenIntent: true,
       category: AndroidNotificationCategory.alarm,
-      actions: const [
+      actions: [
         AndroidNotificationAction(snoozeActionId, 'Snooze'),
         AndroidNotificationAction(turnOffActionId, 'Turn Off'),
       ],
@@ -102,7 +102,7 @@ class NotificationService {
       task.title,
       tz.TZDateTime.from(scheduledDate, tz.local),
       _buildDetails(),
-        uiLocalNotificationDateInterpretation:
+      uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       payload: task.id,
@@ -121,7 +121,7 @@ class NotificationService {
       task.title,
       tz.TZDateTime.from(newTime, tz.local),
       _buildDetails(),
-        uiLocalNotificationDateInterpretation:
+      uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       payload: task.id,

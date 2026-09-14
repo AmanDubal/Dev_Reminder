@@ -10,7 +10,7 @@ class EmptyState extends StatelessWidget {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: const [
             const Icon(Icons.event_available, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
             const Text('No tasks scheduled for today.',
