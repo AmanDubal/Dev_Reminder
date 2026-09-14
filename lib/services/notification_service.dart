@@ -54,8 +54,8 @@ class NotificationService {
       description: 'Task reminder alarms',
       importance: Importance.max,
       playSound: _soundEnabled,
-        sound: _soundEnabled
-          ? RawResourceAndroidNotificationSound('alarm')
+      sound: _soundEnabled
+          ? const RawResourceAndroidNotificationSound('alarm')
           : null,
     );
 
