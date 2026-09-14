@@ -67,8 +67,13 @@ jobs:
       - name: Build Release APK
         run: flutter build apk --release
 
+      - name: Rename APK
+        run: cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/dev_reminder.apk
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: dev-reminder-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: dev-reminder-app-release
+          path: build/app/outputs/flutter-apk/dev_reminder.apk
+          if-no-files-found: error
+          compression-level: 0

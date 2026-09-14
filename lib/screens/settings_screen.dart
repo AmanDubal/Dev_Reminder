@@ -9,6 +9,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   int _defaultSnooze = 10;
+  bool _alarmSoundEnabled = true;
   final List<int> _options = [5, 10, 15, 30, 60];
 
   @override
@@ -20,13 +21,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
-    setState(() => _defaultSnooze = prefs.getInt('default_snooze') ?? 10);
+    setState(() {
+      _defaultSnooze = prefs.getInt('default_snooze') ?? 10;
+      _alarmSoundEnabled = prefs.getBool('alarm_sound_enabled') ?? true;
+    });
   }
 
   Future<void> _updateSnooze(int value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('default_snooze', value);
     setState(() => _defaultSnooze = value);
+  }
+
+  Future<void> _updateAlarmSound(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('alarm_sound_enabled', value);
+    if (mounted) setState(() => _alarmSoundEnabled = value);
   }
 
   @override
@@ -45,6 +55,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 groupValue: _defaultSnooze,
                 onChanged: (value) => _updateSnooze(value!),
               )),
+          const Divider(),
+          SwitchListTile(
+            secondary: const Icon(Icons.volume_up_outlined),
+            title: const Text('Alarm sound'),
+            subtitle: Text(_alarmSoundEnabled ? 'Default notification sound' : 'Silent'),
+            value: _alarmSoundEnabled,
+            onChanged: _updateAlarmSound,
+          ),
           const Divider(),
           const ListTile(
             title: Text('About'),

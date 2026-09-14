@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -19,8 +20,11 @@ class NotificationService {
   static const String _channelId = 'dev_reminder_channel';
 
   final ValueNotifier<String?> pendingTaskId = ValueNotifier(null);
+  bool _soundEnabled = true;
 
   Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    _soundEnabled = prefs.getBool('alarm_sound_enabled') ?? true;
     tzdata.initializeTimeZones();
     try {
       final String currentTimeZone = await FlutterTimezone.getLocalTimezone();
@@ -49,7 +53,7 @@ class NotificationService {
       'Dev Reminder Alerts',
       description: 'Task reminder alarms',
       importance: Importance.max,
-      playSound: true,
+      playSound: _soundEnabled,
     );
 
     await _plugin
@@ -78,6 +82,7 @@ class NotificationService {
       channelDescription: 'Task reminder alarms',
       importance: Importance.max,
       priority: Priority.high,
+      playSound: _soundEnabled,
       fullScreenIntent: true,
       category: AndroidNotificationCategory.alarm,
       actions: [
@@ -167,11 +172,7 @@ class NotificationService {
       await NotificationService.instance
           .snoozeNotification(updated, updated.snoozeDuration);
     } else if (response.actionId == turnOffActionId) {
-      final updated = task.copyWith(
-        status: 'completed',
-        updatedAt: DateTime.now().toIso8601String(),
-      );
-      await db.updateTask(updated);
+      await db.deleteTask(task.id);
       await NotificationService.instance.cancelNotification(task.notificationId);
     }
   }

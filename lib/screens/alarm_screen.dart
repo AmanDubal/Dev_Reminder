@@ -34,11 +34,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
   Future<void> _turnOff() async {
     if (_busy) return;
     setState(() => _busy = true);
-    final updated = widget.task.copyWith(
-      status: 'completed',
-      updatedAt: DateTime.now().toIso8601String(),
-    );
-    await DatabaseHelper.instance.updateTask(updated);
+    await DatabaseHelper.instance.deleteTask(widget.task.id);
     await NotificationService.instance
         .cancelNotification(widget.task.notificationId);
     if (mounted) Navigator.pop(context);
@@ -60,27 +56,37 @@ class _AlarmScreenState extends State<AlarmScreen> {
     final progress = (_dragOffset.abs() / 110).clamp(0.0, 1.0);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF087DB8),
+      backgroundColor: const Color(0xFF252D91),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
           child: Column(
             children: [
               const Spacer(),
-              const Icon(Icons.notifications_active, color: Colors.white70, size: 28),
-              const SizedBox(height: 28),
+              const Text(
+                'Alarm',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
               Text(
                 widget.task.title,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.headlineMedium?.copyWith(
+                style: theme.textTheme.titleMedium?.copyWith(
                   color: Colors.white,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 6),
               Text(
                 AppDateUtils.formatTime12h(widget.task.time),
-                style: theme.textTheme.titleLarge?.copyWith(color: Colors.white70),
+                style: theme.textTheme.displaySmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w300,
+                ),
               ),
               const Spacer(),
               SizedBox(
@@ -129,7 +135,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
                             Icons.alarm,
                             size: 48,
                             color: Color.lerp(
-                              const Color(0xFF087DB8),
+                              const Color(0xFF252D91),
                               Colors.deepOrange,
                               progress,
                             ),
