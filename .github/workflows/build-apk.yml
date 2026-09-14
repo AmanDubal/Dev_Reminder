@@ -52,6 +52,9 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Generate Android project files
+        run: flutter create . --platforms=android --no-pub
+
       - name: Install dependencies
         run: flutter pub get
 
