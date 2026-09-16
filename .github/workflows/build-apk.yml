@@ -58,7 +58,13 @@ jobs:
           java-version: 17
 
       - name: Generate Android project files
-        run: flutter create . --project-name dev_reminder --platforms=android --no-pub
+        run: flutter create . --org com.example --project-name dev_reminder --platforms=android --android-language kotlin --no-pub
+
+      - name: Verify native alarm integration
+        run: |
+          test -f android/app/src/main/kotlin/com/example/dev_reminder/AlarmService.kt
+          grep -q 'dev_reminder/alarms' android/app/src/main/kotlin/com/example/dev_reminder/MainActivity.kt
+          grep -q 'coreLibraryDesugaringEnabled' android/app/build.gradle
 
       - name: Add custom alarm sound
         run: mkdir -p android/app/src/main/res/raw && cp assets/alarm.mp3 android/app/src/main/res/raw/alarm.mp3
