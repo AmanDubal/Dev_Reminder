@@ -35,7 +35,7 @@ class _AddEditTaskSheetState extends State<AddEditTaskSheet> {
 
   Future<void> _loadDefaultSnooze() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() => _defaultSnooze = prefs.getInt('default_snooze') ?? 10);
+    if (mounted) setState(() => _defaultSnooze = prefs.getInt('default_snooze') ?? 10);
   }
 
   Future<void> _pickTime() async {
@@ -43,7 +43,7 @@ class _AddEditTaskSheetState extends State<AddEditTaskSheet> {
       context: context,
       initialTime: _selectedTime ?? TimeOfDay.now(),
     );
-    if (time != null) setState(() => _selectedTime = time);
+    if (time != null && mounted) setState(() => _selectedTime = time);
   }
 
   void _save() {
@@ -58,17 +58,12 @@ class _AddEditTaskSheetState extends State<AddEditTaskSheet> {
     }
 
     final now = DateTime.now();
-    final todayStr =
-        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-
-    if (widget.date == todayStr && widget.existingTask == null) {
-      final selectedDateTime = DateTime(
-          now.year, now.month, now.day, _selectedTime!.hour, _selectedTime!.minute);
-      if (selectedDateTime.isBefore(now)) {
-        setState(() =>
-            _errorText = 'This time has already passed today. Choose a future time.');
-        return;
-      }
+    final date = DateTime.parse(widget.date);
+    final at = DateTime(date.year, date.month, date.day,
+        _selectedTime!.hour, _selectedTime!.minute);
+    if (_reminderEnabled && !at.isAfter(now)) {
+      setState(() => _errorText = 'Choose a future date and time for the reminder.');
+      return;
     }
 
     final timeStr =
@@ -80,7 +75,7 @@ class _AddEditTaskSheetState extends State<AddEditTaskSheet> {
       title: title,
       date: widget.date,
       time: timeStr,
-      status: widget.existingTask?.status ?? 'scheduled',
+      status: 'scheduled',
       reminderEnabled: _reminderEnabled,
       snoozeDuration: widget.existingTask?.snoozeDuration ?? _defaultSnooze,
       notificationId: widget.existingTask?.notificationId ??
@@ -90,6 +85,12 @@ class _AddEditTaskSheetState extends State<AddEditTaskSheet> {
     );
 
     Navigator.pop(context, task);
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    super.dispose();
   }
 
   @override

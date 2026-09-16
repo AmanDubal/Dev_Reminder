@@ -15,7 +15,7 @@ class CalendarScreen extends StatefulWidget {
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
 
-class _CalendarScreenState extends State<CalendarScreen> {
+class _CalendarScreenState extends State<CalendarScreen> with WidgetsBindingObserver {
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
   List<Task> _tasksForDay = [];
@@ -24,6 +24,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadDatesWithTasks();
     _loadTasksForDay();
   }
@@ -34,7 +35,39 @@ class _CalendarScreenState extends State<CalendarScreen> {
     setState(() => _datesWithTasks = dates);
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _loadTasksForDay();
+  }
+
+  Future<void> _saveTask(Task task, {bool insert = false}) async {
+    try {
+      // Schedule first so permission denial does not silently save a broken reminder.
+      await NotificationService.instance.scheduleTaskNotification(task);
+      if (insert) {
+        await DatabaseHelper.instance.insertTask(task);
+      } else {
+        await DatabaseHelper.instance.updateTask(task);
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Task was not saved: $error'),
+          duration: const Duration(seconds: 8),
+        ));
+      }
+    }
+  }
+
   Future<void> _loadTasksForDay() async {
+    await NotificationService.instance.refresh();
+    if (!mounted) return;
     final tasks = await DatabaseHelper.instance
         .getTasksForDate(AppDateUtils.formatDateKey(_selectedDay));
     tasks.sort((a, b) => a.time.compareTo(b.time));
@@ -51,8 +84,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       builder: (_) => AddEditTaskSheet(date: AppDateUtils.formatDateKey(_selectedDay)),
     );
     if (result != null) {
-      await DatabaseHelper.instance.insertTask(result);
-      await NotificationService.instance.scheduleTaskNotification(result);
+      await _saveTask(result, insert: true);
       _loadTasksForDay();
       _loadDatesWithTasks();
     }
@@ -67,9 +99,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       builder: (_) => AddEditTaskSheet(date: task.date, existingTask: task),
     );
     if (result != null) {
-      await NotificationService.instance.cancelNotification(task.notificationId);
-      await DatabaseHelper.instance.updateTask(result);
-      await NotificationService.instance.scheduleTaskNotification(result);
+      await _saveTask(result);
       _loadTasksForDay();
     }
   }
@@ -102,12 +132,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       status: task.status == 'completed' ? 'scheduled' : 'completed',
       updatedAt: DateTime.now().toIso8601String(),
     );
-    await DatabaseHelper.instance.updateTask(updated);
-    if (updated.status == 'completed') {
-      await NotificationService.instance.cancelNotification(task.notificationId);
-    } else {
-      await NotificationService.instance.scheduleTaskNotification(updated);
-    }
+    await _saveTask(updated);
     _loadTasksForDay();
   }
 

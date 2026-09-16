@@ -19,6 +19,8 @@ class DevReminderApp extends StatefulWidget {
 }
 
 class _DevReminderAppState extends State<DevReminderApp> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
+  bool _openingAlarm = false;
   @override
   void initState() {
     super.initState();
@@ -34,18 +36,27 @@ class _DevReminderAppState extends State<DevReminderApp> {
 
   Future<void> _openPendingAlarm() async {
     final taskId = NotificationService.instance.pendingTaskId.value;
-    if (taskId == null || !mounted) return;
+    if (taskId == null || !mounted || _openingAlarm) return;
+    _openingAlarm = true;
     NotificationService.instance.pendingTaskId.value = null;
-    final task = await DatabaseHelper.instance.getTaskById(taskId);
-    if (!mounted || task == null) return;
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => AlarmScreen(task: task)),
-    );
+    try {
+      final task = await DatabaseHelper.instance.getTaskById(taskId);
+      if (!mounted || task == null) return;
+      await _navigatorKey.currentState?.push(
+        MaterialPageRoute<void>(builder: (_) => AlarmScreen(task: task)),
+      );
+    } finally {
+      _openingAlarm = false;
+      if (mounted && NotificationService.instance.pendingTaskId.value != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => _openPendingAlarm());
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'Dev Reminder',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(

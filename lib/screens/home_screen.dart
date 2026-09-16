@@ -16,14 +16,15 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<Task> _tasks = [];
   bool _loading = true;
-  late final String _todayStr;
+  late String _todayStr;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _todayStr = AppDateUtils.formatDateKey(DateTime.now());
     _requestPermissions();
     _loadTasks();
@@ -31,9 +32,51 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _requestPermissions() async {
     await NotificationService.instance.requestPermissions();
+    final access = await NotificationService.instance.permissions();
+    if (mounted && access.values.any((allowed) => !allowed)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('Enable alarm permissions in Settings for lock-screen reminders.'),
+        duration: const Duration(seconds: 10),
+        action: SnackBarAction(label: 'Settings', onPressed: () => Navigator.push(
+          context, MaterialPageRoute<void>(builder: (_) => const SettingsScreen()))),
+      ));
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _loadTasks();
+  }
+
+  Future<void> _saveTask(Task task, {bool insert = false}) async {
+    try {
+      // Schedule first so permission denial does not silently save a broken reminder.
+      await NotificationService.instance.scheduleTaskNotification(task);
+      if (insert) {
+        await DatabaseHelper.instance.insertTask(task);
+      } else {
+        await DatabaseHelper.instance.updateTask(task);
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Task was not saved: $error'),
+          duration: const Duration(seconds: 8),
+        ));
+      }
+    }
   }
 
   Future<void> _loadTasks() async {
+    await NotificationService.instance.refresh();
+    if (!mounted) return;
+    _todayStr = AppDateUtils.formatDateKey(DateTime.now());
     setState(() => _loading = true);
     final tasks = await DatabaseHelper.instance.getTasksForDate(_todayStr);
     tasks.sort((a, b) => a.time.compareTo(b.time));
@@ -53,8 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (_) => AddEditTaskSheet(date: _todayStr),
     );
     if (result != null) {
-      await DatabaseHelper.instance.insertTask(result);
-      await NotificationService.instance.scheduleTaskNotification(result);
+      await _saveTask(result, insert: true);
       _loadTasks();
     }
   }
@@ -68,9 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (_) => AddEditTaskSheet(date: task.date, existingTask: task),
     );
     if (result != null) {
-      await NotificationService.instance.cancelNotification(task.notificationId);
-      await DatabaseHelper.instance.updateTask(result);
-      await NotificationService.instance.scheduleTaskNotification(result);
+      await _saveTask(result);
       _loadTasks();
     }
   }
@@ -102,12 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
       status: task.status == 'completed' ? 'scheduled' : 'completed',
       updatedAt: DateTime.now().toIso8601String(),
     );
-    await DatabaseHelper.instance.updateTask(updated);
-    if (updated.status == 'completed') {
-      await NotificationService.instance.cancelNotification(task.notificationId);
-    } else {
-      await NotificationService.instance.scheduleTaskNotification(updated);
-    }
+    await _saveTask(updated);
     _loadTasks();
   }
 

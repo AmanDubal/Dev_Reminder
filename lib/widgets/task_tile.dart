@@ -41,7 +41,16 @@ class TaskTile extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        subtitle: Text(AppDateUtils.formatTime12h(task.time)),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppDateUtils.formatTime12h(task.time)),
+            if (task.status != 'scheduled')
+              Text(task.status[0].toUpperCase() + task.status.substring(1),
+                  style: TextStyle(color: task.status == 'missed'
+                      ? AppColors.danger : Colors.grey)),
+          ],
+        ),
         trailing: IconButton(
           icon: const Icon(Icons.delete_outline, color: AppColors.danger),
           onPressed: onDelete,
